@@ -1,0 +1,16 @@
+export enum CustomerPermissions {
+  VIEW_PRODUCTS = 'view_products',
+  VIEW_PRODUCTS_DETAILS = 'view_product_details',
+  SEARCH_PRODUCTS = 'search_products',
+  FILTER_PRODUCTS = 'filter_products',
+  ADD_TO_CART = 'add_to_cart',
+  REMOVE_FROM_CART = 'remove_from_cart',
+  UPDATE_CART_QUANTITY = 'update_cart_quantity',
+  VIEW_CART = 'view_cart',
+  PLACE_ORDER = 'place_order',
+  VIEW_OWN_ORDERS = 'view_own_orders',
+  VIEW_ORDER_DETAILS = 'view_order_details',
+  ADD_TO_WHISHLIST = 'add_to_wishlist',
+  REMOVE_FROM_WHISHLIST = 'remove_from_wishlist',
+  VIEW_WHISHLIST = 'view_wishlist',
+}
