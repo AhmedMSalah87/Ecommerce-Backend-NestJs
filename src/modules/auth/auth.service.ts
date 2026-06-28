@@ -8,10 +8,14 @@ import { UserService } from '../users/user.service';
 import { CreateUserDto } from '../users/dto/createUser.dto';
 import { SignInDto } from '../users/dto/signIn.dto';
 import { compareValue } from '../../common/utils/hash.utils';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async signUp(data: CreateUserDto) {
     const emailExist = await this.userService.findUserByEmail(data.email);
@@ -32,6 +36,16 @@ export class AuthService {
     if (!isMatched) {
       throw new UnauthorizedException('invalid credentials');
     }
-    return { message: 'Sign-in successful' };
+    const accessToken = await this.jwtService.signAsync(
+      {
+        id: user._id,
+      },
+      { secret: process.env.ACCESS_SECRET_KEY, expiresIn: '15m' },
+    );
+    const refreshToken = await this.jwtService.signAsync(
+      { id: user._id },
+      { secret: process.env.REFRESH_SECRET_KEY, expiresIn: '7d' },
+    );
+    return { message: 'Sign-in successful', accessToken, refreshToken };
   }
 }

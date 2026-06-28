@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../../db/schemas/user.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateUserDto } from './dto/createUser.dto';
 import { hashValue } from '../../common/utils/hash.utils';
 
@@ -10,6 +10,10 @@ export class UserService {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
   async getUser() {
     return this.userModel.findOne();
+  }
+
+  async findUserById(userId: Types.ObjectId | string) {
+    return this.userModel.findById(userId, { password: 0 });
   }
 
   async findUserByEmail(email: string) {
