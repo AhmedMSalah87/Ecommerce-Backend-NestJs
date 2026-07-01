@@ -10,6 +10,7 @@ import { SignInDto } from '../users/dto/signIn.dto';
 import { compareValue, hashValue } from '../../common/utils/hash.utils';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../db/repositories/user.repository';
+import { Role } from '../../common/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
   ) {}
 
   async signUp(data: CreateUserDto) {
-    const { firstName, lastName, email, password } = data;
+    const { firstName, lastName, email, password, role } = data;
     const emailExist = await this.userRepo.findUserByEmail(email);
     if (emailExist) {
       throw new ConflictException('email already exist');
@@ -29,6 +30,7 @@ export class AuthService {
       lastName,
       email,
       password: await hashValue(password),
+      role: role ?? Role.CUSTOMER,
     });
     return { message: 'Sign-up successful' };
   }

@@ -18,12 +18,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../../common/utils/multerOptions.utils';
 
 @UseGuards(RolesGuard)
+@Roles(['customer'])
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('profile')
-  @Roles(['customer'])
   getUser(@Req() req: Request) {
     // return this.userService.getUser();
     return req.user._id;
