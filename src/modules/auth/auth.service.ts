@@ -4,31 +4,38 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from '../users/user.service';
+
 import { CreateUserDto } from '../users/dto/createUser.dto';
 import { SignInDto } from '../users/dto/signIn.dto';
-import { compareValue } from '../../common/utils/hash.utils';
+import { compareValue, hashValue } from '../../common/utils/hash.utils';
 import { JwtService } from '@nestjs/jwt';
+import { UserRepository } from '../../db/repositories/user.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    private readonly userRepo: UserRepository,
     private readonly jwtService: JwtService,
   ) {}
 
   async signUp(data: CreateUserDto) {
-    const emailExist = await this.userService.findUserByEmail(data.email);
+    const { firstName, lastName, email, password } = data;
+    const emailExist = await this.userRepo.findUserByEmail(email);
     if (emailExist) {
-      throw new ConflictException('email already exists');
+      throw new ConflictException('email already exist');
     }
-    await this.userService.createUser(data);
+    await this.userRepo.create({
+      firstName,
+      lastName,
+      email,
+      password: await hashValue(password),
+    });
     return { message: 'Sign-up successful' };
   }
 
   async signIn(data: SignInDto) {
     const { email, password } = data;
-    const user = await this.userService.findUserByEmail(email);
+    const user = await this.userRepo.findUserByEmail(email);
     if (!user) {
       throw new NotFoundException('user not found');
     }

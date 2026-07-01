@@ -8,15 +8,15 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { JwtPayload } from '../../types/jwtPayload.type';
-import { UserService } from '../../modules/users/user.service';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { UserRepository } from '../../db/repositories/user.repository';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
+    private readonly userRepo: UserRepository,
     private readonly reflector: Reflector,
   ) {}
 
@@ -37,7 +37,7 @@ export class JwtAuthGuard implements CanActivate {
       const decoded = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: process.env.ACCESS_SECRET_KEY,
       });
-      const user = await this.userService.findUserById(decoded.id);
+      const user = await this.userRepo.findUserById(decoded.id);
       if (!user) {
         throw new NotFoundException('user not found');
       }
