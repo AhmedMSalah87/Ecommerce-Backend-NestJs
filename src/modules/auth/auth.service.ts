@@ -9,7 +9,7 @@ import { CreateUserDto } from '../users/dto/createUser.dto';
 import { SignInDto } from '../users/dto/signIn.dto';
 import { compareValue, hashValue } from '../../common/utils/hash.utils';
 import { JwtService } from '@nestjs/jwt';
-import { UserRepository } from '../../db/repositories/user.repository';
+import { UserRepository } from '../../infrastructure/database/repositories/user.repository';
 import { Role } from '../../common/enums/role.enum';
 
 @Injectable()

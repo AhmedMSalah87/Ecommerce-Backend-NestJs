@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { JwtAuthGuard } from './common/guards/auth.guard';
     }),
     UserModule,
     AuthModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }], // apply authentication global

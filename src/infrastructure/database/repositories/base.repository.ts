@@ -14,7 +14,9 @@ import {
 abstract class BaseRepository<T> {
   constructor(protected readonly model: Model<T>) {}
 
-  async create(data: Partial<T>): Promise<HydratedDocument<T>> {
+  async create(
+    data: Partial<T> & { _id?: Types.ObjectId },
+  ): Promise<HydratedDocument<T>> {
     return this.model.create(data);
   }
 
@@ -57,7 +59,7 @@ abstract class BaseRepository<T> {
   }
 
   async findByIdAndDelete(
-    id: Types.ObjectId,
+    id: Types.ObjectId | string,
     options?: QueryOptions<T>,
   ): Promise<HydratedDocument<T> | null> {
     return this.model.findByIdAndDelete(id, options).exec();
