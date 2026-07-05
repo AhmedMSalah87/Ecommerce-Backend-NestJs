@@ -8,6 +8,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { TransformBoolean } from '../../../common/decorators/transformBoolean.decorator';
 
 export class AddCategoryDto {
   @IsString()
@@ -23,7 +24,7 @@ export class AddCategoryDto {
 
   @IsBoolean()
   @IsOptional()
-  //   @Transform((value) => v)
+  @TransformBoolean()
   isActive: boolean;
 
   @IsMongoId()

@@ -87,7 +87,7 @@ abstract class BaseRepository<T> {
   }
 
   async updateOne(
-    filter: QueryFilter<T>,
+    filter: QueryFilter<T> & { _id?: Types.ObjectId },
     update: UpdateQuery<T>,
   ): Promise<UpdateResult> {
     return this.model.updateOne(filter, update, {

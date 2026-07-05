@@ -4,11 +4,11 @@ import { MatchTwoProperties } from './isMatched.constriant';
 export function IsMatched(
   constraint: string,
   validationOptions?: ValidationOptions,
-) {
-  return function (object: object, propertyName: string) {
+): PropertyDecorator {
+  return function (target, propertyName) {
     registerDecorator({
-      target: object.constructor,
-      propertyName,
+      target: target.constructor,
+      propertyName: propertyName.toString(),
       options: validationOptions,
       constraints: [constraint],
       validator: MatchTwoProperties,

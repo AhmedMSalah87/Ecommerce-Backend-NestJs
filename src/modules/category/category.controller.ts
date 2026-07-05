@@ -4,6 +4,7 @@ import {
   Delete,
   Param,
   ParseFilePipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -18,6 +19,7 @@ import { Types } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../../common/utils/multerOptions.utils';
 import { imageValidator } from '../../infrastructure/storage/validators/image.validator';
+import { UpdateCategoryDto } from './dto/updateCategory.dto';
 
 // order of decorator here has no effect in this scenario
 //as guards dont work unless request is coming so it will read metadata from roles any way
@@ -35,6 +37,19 @@ export class CategoryController {
     image: Express.Multer.File,
   ) {
     return await this.categoryService.addCategory(data, image);
+  }
+
+  @UseInterceptors(FileInterceptor('attachment', multerOptions))
+  @Patch(':id')
+  async updateCategory(
+    @Param('id', ParseObjectIdPipe) id: Types.ObjectId,
+    @Body() data: UpdateCategoryDto,
+    @UploadedFile(
+      new ParseFilePipe({ validators: imageValidator, fileIsRequired: false }),
+    )
+    file?: Express.Multer.File,
+  ) {
+    return this.categoryService.updateCategory(id, data, file);
   }
 
   @Delete(':id')
