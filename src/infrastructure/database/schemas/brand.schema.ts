@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class Category {
+export class Brand {
   @Prop({ type: String, required: true, trim: true })
   name: string;
 
@@ -10,19 +10,11 @@ export class Category {
   slug: string;
 
   @Prop({ type: String, required: true })
-  imageUrl: string;
-
-  @Prop({
-    type: Types.ObjectId,
-    ref: Category.name,
-    default: null,
-    index: true,
-  })
-  parentId: Types.ObjectId;
+  logoUrl: string;
 
   @Prop({ type: Boolean, default: true })
   isActive: boolean;
 }
 
-export const CategorySchema = SchemaFactory.createForClass(Category);
-export type CategoryDocument = HydratedDocument<Category>;
+export const BrandSchema = SchemaFactory.createForClass(Brand);
+export type BrandDocument = HydratedDocument<Brand>;
