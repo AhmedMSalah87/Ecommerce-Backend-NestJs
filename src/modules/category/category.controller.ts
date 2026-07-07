@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseFilePipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -20,6 +22,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../../common/utils/multerOptions.utils';
 import { imageValidator } from '../../infrastructure/storage/validators/image.validator';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
+import { GetCategoriesDto } from './dto/getCategories.dto';
 
 // order of decorator here has no effect in this scenario
 //as guards dont work unless request is coming so it will read metadata from roles any way
@@ -55,5 +58,15 @@ export class CategoryController {
   @Delete(':id')
   async deleteCategory(@Param('id', ParseObjectIdPipe) id: Types.ObjectId) {
     return await this.categoryService.deleteCategory(id);
+  }
+
+  @Get()
+  async getCategories(@Query() query: GetCategoriesDto) {
+    return await this.categoryService.getCategories(query);
+  }
+
+  @Get(':slug')
+  async getCategory(@Param('slug') slug: string) {
+    return await this.categoryService.getCategory(slug);
   }
 }

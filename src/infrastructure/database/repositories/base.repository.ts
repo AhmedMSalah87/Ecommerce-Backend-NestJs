@@ -10,6 +10,7 @@ import {
   UpdateQuery,
   UpdateResult,
 } from 'mongoose';
+import { PaginationOptions } from '../../../types/pagination.type';
 
 abstract class BaseRepository<T> {
   constructor(protected readonly model: Model<T>) {}
@@ -32,8 +33,22 @@ abstract class BaseRepository<T> {
     filter: QueryFilter<T>,
     projection?: ProjectionType<T>,
     options?: QueryOptions<T>,
+    pagination?: PaginationOptions,
   ): Promise<HydratedDocument<T>[]> {
-    return this.model.find(filter, projection, options);
+    const query = this.model.find(filter, projection, options);
+    if (!pagination) {
+      return query;
+    }
+
+    const page = pagination?.page ?? 1;
+    const limit = pagination?.limit ?? 10;
+    const sort = pagination?.sort ?? 'createdAt';
+    const order = pagination?.order ?? 'desc';
+
+    return query
+      .sort({ [sort]: order })
+      .skip((page - 1) * limit)
+      .limit(limit);
   }
 
   async findById(

@@ -6,6 +6,7 @@ import { StorageService } from '../../infrastructure/storage/storage.service';
 import { randomUUID } from 'node:crypto';
 import { extname } from 'node:path';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
+import { PaginationOptions } from '../../types/pagination.type';
 
 @Injectable()
 export class CategoryService {
@@ -74,5 +75,13 @@ export class CategoryService {
     }
     await this.storage.delete(category.imageUrl);
     return { message: 'category deleted successfully' };
+  }
+
+  async getCategories(pagination: PaginationOptions) {
+    return this.categoryRepo.find({}, {}, {}, pagination);
+  }
+
+  async getCategory(slug: string) {
+    return this.categoryRepo.findOne({ slug });
   }
 }
