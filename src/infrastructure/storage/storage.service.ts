@@ -12,4 +12,8 @@ export class StorageService {
   async delete(key: string) {
     return await this.provider.deleteFileFromS3(key);
   }
+
+  async deleteMany(keys: string[]) {
+    return await this.provider.deleteFilesFromS3(keys);
+  }
 }

@@ -78,10 +78,19 @@ export class CategoryService {
   }
 
   async getCategories(pagination: PaginationOptions) {
-    return this.categoryRepo.find({}, {}, {}, pagination);
+    return this.categoryRepo.find({ parentId: null }, {}, {}, pagination);
   }
 
   async getCategory(slug: string) {
     return this.categoryRepo.findOne({ slug });
+  }
+
+  //get subcategories of parent category
+  async getSubCategories(slug: string) {
+    const parentCategory = await this.categoryRepo.findOne({ slug });
+    if (!parentCategory) {
+      throw new NotFoundException('parent category not found');
+    }
+    return this.categoryRepo.find({ parentId: parentCategory._id });
   }
 }

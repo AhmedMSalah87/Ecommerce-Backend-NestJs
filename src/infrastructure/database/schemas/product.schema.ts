@@ -23,8 +23,11 @@ export class Product {
   @Prop({ type: Number, required: true, index: true, min: 0 })
   price: number;
 
+  @Prop({ type: Number, default: 0, min: 0, max: 100 })
+  discount?: number;
+
   @Prop({ type: Number, default: 0, min: 0 })
-  discount: number;
+  finalPrice: number;
 
   @Prop({ type: Number, default: 0, min: 0 })
   stock: number;
