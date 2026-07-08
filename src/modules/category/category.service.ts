@@ -69,25 +69,35 @@ export class CategoryService {
   }
 
   async deleteCategory(categoryId: Types.ObjectId) {
-    const category = await this.categoryRepo.findByIdAndDelete(categoryId);
+    const category = await this.categoryRepo.findById(categoryId);
     if (!category) {
       throw new NotFoundException('category not found');
     }
-    await this.storage.delete(category.imageUrl);
-    return { message: 'category deleted successfully' };
+    category.isDeleted = true;
+    category.deletedAt = new Date();
+    await category.save();
+    return { message: 'category marked as deleted' };
   }
 
   async getCategories(pagination: PaginationOptions) {
-    return this.categoryRepo.find({ parentId: null }, {}, {}, pagination);
+    return this.categoryRepo.find(
+      { parentId: null, isDeleted: false },
+      {},
+      {},
+      pagination,
+    );
   }
 
   async getCategory(slug: string) {
-    return this.categoryRepo.findOne({ slug });
+    return this.categoryRepo.findOne({ slug, isDeleted: false });
   }
 
   //get subcategories of parent category
   async getSubCategories(slug: string) {
-    const parentCategory = await this.categoryRepo.findOne({ slug });
+    const parentCategory = await this.categoryRepo.findOne({
+      slug,
+      isDeleted: false,
+    });
     if (!parentCategory) {
       throw new NotFoundException('parent category not found');
     }

@@ -121,7 +121,10 @@ export class ProductService {
   }
 
   async getProducts(query: GetProductsDto) {
-    const category = await this.categoryRepo.findOne({ slug: query.category });
+    const category = await this.categoryRepo.findOne({
+      slug: query.category,
+      isDeleted: false,
+    });
     if (!category) {
       throw new NotFoundException('category not found');
     }

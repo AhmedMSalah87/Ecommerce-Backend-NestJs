@@ -22,6 +22,12 @@ export class Category {
 
   @Prop({ type: Boolean, default: true })
   isActive: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
+
+  @Prop({ type: Date })
+  deletedAt?: Date;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

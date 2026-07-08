@@ -67,11 +67,13 @@ export class BrandService {
   }
 
   async deleteBrand(brandId: Types.ObjectId) {
-    const brand = await this.brandRepo.findByIdAndDelete(brandId);
+    const brand = await this.brandRepo.findById(brandId);
     if (!brand) {
       throw new NotFoundException('brand not found');
     }
-    await this.storage.delete(brand.logoUrl);
-    return { message: 'brand deleted successfully' };
+    brand.isDeleted = true;
+    brand.deletedAt = new Date();
+    await brand.save();
+    return { message: 'brand marked as deleted' };
   }
 }

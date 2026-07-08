@@ -14,6 +14,12 @@ export class Brand {
 
   @Prop({ type: Boolean, default: true })
   isActive: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
+
+  @Prop({ type: Date })
+  deletedAt?: Date;
 }
 
 export const BrandSchema = SchemaFactory.createForClass(Brand);
