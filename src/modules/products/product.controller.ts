@@ -15,9 +15,10 @@ import { imageValidator } from '../../infrastructure/storage/validators/image.va
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from '../../common/utils/multerOptions.utils';
 import { GetProductsDto } from './dto/getProducts.dto';
+import { Role } from '../../common/enums/role.enum';
 
 @UseGuards(RolesGuard)
-@Roles(['admin'])
+@Roles([Role.ADMIN])
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}

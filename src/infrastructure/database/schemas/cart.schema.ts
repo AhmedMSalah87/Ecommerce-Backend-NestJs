@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { User } from './user.schema';
 import { Product } from './product.schema';
 
@@ -29,3 +29,4 @@ export class Cart {
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
+export type CartDocument = HydratedDocument<Cart>;
