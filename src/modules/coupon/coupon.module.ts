@@ -14,6 +14,6 @@ import {
   ],
   controllers: [CouponController],
   providers: [CouponService, CouponRepository],
-  exports: [],
+  exports: [CouponService, CouponRepository],
 })
 export class CouponModule {}
