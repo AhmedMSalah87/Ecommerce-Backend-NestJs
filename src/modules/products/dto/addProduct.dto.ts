@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsMongoId, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsMongoId,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Types } from 'mongoose';
 import { TransformBoolean } from '../../../common/decorators/transformBoolean.decorator';
 
@@ -18,6 +25,7 @@ export class AddProductDto {
   @Type(() => Number)
   price: number;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Type(() => Number)
