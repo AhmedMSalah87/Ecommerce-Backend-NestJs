@@ -1,4 +1,5 @@
 import {
+  ClientSession,
   DeleteResult,
   HydratedDocument,
   Model,
@@ -17,8 +18,11 @@ abstract class BaseRepository<T> {
 
   async create(
     data: Partial<T> & { _id?: Types.ObjectId },
+    session?: ClientSession,
   ): Promise<HydratedDocument<T>> {
-    return this.model.create(data);
+    const doc = new this.model(data);
+    await doc.save({ session });
+    return doc as HydratedDocument<T>;
   }
 
   async findOne(

@@ -18,5 +18,6 @@ import { StorageModule } from '../../infrastructure/storage/storage.module';
   ],
   controllers: [CategoryController],
   providers: [CategoryService, CategoryRepository],
+  exports: [CategoryRepository],
 })
 export class CategoryModule {}

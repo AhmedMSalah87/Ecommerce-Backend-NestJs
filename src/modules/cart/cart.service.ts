@@ -5,9 +5,10 @@ import {
 } from '@nestjs/common';
 import { CartRepository } from '../../infrastructure/database/repositories/cart.repository';
 import { ProductRepository } from '../../infrastructure/database/repositories/product.repository';
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 import { AddToCartDto } from './dto/addToCart.dto';
 import { UpdateItemQuantityDto } from './dto/updateItemQuantity.dto';
+import { Cart } from '../../infrastructure/database/schemas/cart.schema';
 
 @Injectable()
 export class CartService {
@@ -80,16 +81,12 @@ export class CartService {
     return { message: 'item quantity updated successfully' };
   }
 
-  async clearCart(userId: Types.ObjectId) {
-    await this.cartRepo.findOneAndDelete({ userId });
+  async clearCart(userId: Types.ObjectId, session?: ClientSession) {
+    await this.cartRepo.findOneAndDelete({ userId }, { session });
     return { message: 'cart cleared successfully' };
   }
 
-  async getCart(userId: Types.ObjectId) {
-    const cart = await this.cartRepo.findOne({ userId });
-    if (!cart) {
-      throw new NotFoundException('cart not found');
-    }
+  async buildCartItems(cart: Cart) {
     const productIds = cart.items.map((item) => item.productId);
     const products = await this.productRepo.find({
       _id: { $in: productIds },
@@ -104,16 +101,27 @@ export class CartService {
       if (!product) {
         throw new NotFoundException('item not found in cart');
       }
+      if (product.stock < item.quantity) {
+        throw new BadRequestException('not enough stock in warehouse');
+      }
       const itemSubtotal = product.price * item.quantity;
       subtotal += itemSubtotal;
       return {
         productId: item.productId,
-        name: product.name,
-        price: product.price,
+        productName: product.name,
+        unitPrice: product.price,
         quantity: item.quantity,
         subtotal: itemSubtotal,
-      };
+      }; //i make shape of item like orderItem schema type
     });
     return { items, subtotal };
+  }
+  async getCart(userId: Types.ObjectId) {
+    const cart = await this.cartRepo.findOne({ userId });
+    if (!cart) {
+      throw new NotFoundException('cart not found');
+    }
+    const { items, subtotal } = await this.buildCartItems(cart);
+    return { cart, items, subtotal };
   }
 }

@@ -10,6 +10,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { CategoryModule } from './modules/category/category.module';
 import { BrandModule } from './modules/brands/brand.module';
+import { ProductModule } from './modules/products/product.module';
+import { CouponModule } from './modules/coupon/coupon.module';
+import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 
 @Module({
   imports: [
@@ -32,6 +36,10 @@ import { BrandModule } from './modules/brands/brand.module';
     AuthModule,
     CategoryModule,
     BrandModule,
+    ProductModule,
+    CouponModule,
+    CartModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }], // apply authentication global

@@ -9,6 +9,7 @@ import { CreateCouponDto } from './dto/createCoupon.dto';
 import { Coupon } from '../../infrastructure/database/schemas/coupon.schema';
 import { DiscountType } from '../../common/enums/discount.enum';
 import { ApplyCouponDto } from './dto/applyCoupon.dto';
+import { ClientSession, Types } from 'mongoose';
 
 @Injectable()
 export class CouponService {
@@ -55,6 +56,33 @@ export class CouponService {
     }
     const discount = this.calculateDiscount(subtotal, coupon);
     return { couponId: coupon._id, discount, finalTotal: subtotal - discount };
+  }
+
+  async consumeCoupon(
+    couponId: Types.ObjectId,
+    userId: Types.ObjectId,
+    session?: ClientSession,
+  ) {
+    const coupon = await this.couponRepo.findOneAndUpdate(
+      {
+        _id: couponId,
+        isActive: true,
+        usedBy: { $ne: userId },
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+        $or: [
+          { usageLimit: { $exists: false } },
+          { $expr: { $lt: ['$usedCount', '$usageLimit'] } }, //$expr used for comparison of two fields on the same document
+        ],
+      },
+      { $addToSet: { usedBy: userId }, $inc: { usedCount: 1 } },
+      { session },
+    );
+    if (!coupon) {
+      throw new BadRequestException(
+        'Coupon is invalid, expired, already used, or has reached its usage limit',
+      );
+    }
   }
 
   //calculate and return the discount amount

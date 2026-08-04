@@ -16,5 +16,6 @@ import { BrandRepository } from '../../infrastructure/database/repositories/bran
   ],
   controllers: [BrandController],
   providers: [BrandService, BrandRepository],
+  exports: [BrandRepository],
 })
 export class BrandModule {}

@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   ParseFilePipe,
+  Post,
   Query,
   UploadedFiles,
   UseGuards,
@@ -24,6 +26,7 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @UseInterceptors(FilesInterceptor('attachments', 5, multerOptions))
+  @Post()
   async addProduct(
     @Body() body: AddProductDto,
     @UploadedFiles(new ParseFilePipe({ validators: imageValidator }))
@@ -32,6 +35,7 @@ export class ProductController {
     return await this.productService.addProduct(body, images);
   }
 
+  @Get()
   async getProducts(@Query() query: GetProductsDto) {
     return await this.productService.getProducts(query);
   }
