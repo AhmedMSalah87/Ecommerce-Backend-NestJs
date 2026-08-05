@@ -14,6 +14,6 @@ export class OrderController {
 
   @Post()
   async createOrder(@Body() data: CreateOrderDto, @Req() req: Request) {
-    await this.orderService.createOrder(data, req.user._id);
+    await this.orderService.createOrder(data, req.user);
   }
 }

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { OrderRepository } from '../../infrastructure/database/repositories/order.repository';
 import { CreateOrderDto } from './dto/createOrder.dto';
-import { Connection, Types } from 'mongoose';
+import { Connection } from 'mongoose';
 import { CouponService } from '../coupon/coupon.service';
 import { CartService } from '../cart/cart.service';
 import { PaymentMethod } from '../../common/enums/paymentMethod.enum';
@@ -9,6 +9,8 @@ import { PaymentStatus } from '../../common/enums/paymentStatus.enum';
 import { OrderStatus } from '../../common/enums/orderStatus.enum';
 import { ProductRepository } from '../../infrastructure/database/repositories/product.repository';
 import { InjectConnection } from '@nestjs/mongoose';
+import { PaymentService } from '../../infrastructure/payment/payment.service';
+import { UserDocument } from '../../infrastructure/database/schemas/user.schema';
 
 @Injectable()
 export class OrderService {
@@ -18,12 +20,13 @@ export class OrderService {
     private readonly cartService: CartService,
     private readonly productRepo: ProductRepository,
     @InjectConnection() private readonly connection: Connection,
+    private readonly paymentService: PaymentService,
   ) {}
 
-  async createOrder(data: CreateOrderDto, userId: Types.ObjectId) {
+  async createOrder(data: CreateOrderDto, user: UserDocument) {
     const { paymentMethod, shippingAddress, couponCode } = data;
     //get cart
-    const { cart } = await this.cartService.getCart(userId);
+    const { cart } = await this.cartService.getCart(user._id);
     if (!cart) {
       throw new BadRequestException('cart not exist');
     }
@@ -33,7 +36,7 @@ export class OrderService {
       ? await this.couponService.applyCoupon({
           code: couponCode,
           subtotal,
-          userId,
+          userId: user._id,
         })
       : undefined;
     const discount = couponResult?.discount ?? 0;
@@ -50,12 +53,9 @@ export class OrderService {
             items,
             subtotal,
             total,
-            userId,
+            userId: user._id,
             paymentMethod,
-            paymentStatus:
-              paymentMethod === PaymentMethod.COD
-                ? PaymentStatus.PENDING
-                : PaymentStatus.PAID,
+            paymentStatus: PaymentStatus.PENDING,
             shippingAddress,
             orderStatus: OrderStatus.PENDING,
           },
@@ -65,14 +65,28 @@ export class OrderService {
         if (couponResult) {
           await this.couponService.consumeCoupon(
             couponResult.couponId,
-            userId,
+            user._id,
             session,
           );
         }
         //update stock
         await this.productRepo.decreaseStock(order.items, session);
         //clear cart
-        await this.cartService.clearCart(userId, session);
+        await this.cartService.clearCart(user._id, session);
+        //pay online if payment method is card
+        if (data.paymentMethod === PaymentMethod.CARD) {
+          const checkoutItems = items.map((item) => ({
+            name: item.productName,
+            quantity: item.quantity,
+            price: item.unitPrice,
+          }));
+          const checkoutSession = await this.paymentService.payOnline(
+            checkoutItems,
+            { orderId: order._id.toString() },
+            user.email,
+          );
+          return checkoutSession;
+        }
         return order;
       });
     } finally {

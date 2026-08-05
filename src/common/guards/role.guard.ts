@@ -8,7 +8,11 @@ export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const roles = this.reflector.get(Roles, context.getHandler());
+    const roles = this.reflector.getAllAndOverride(Roles, [
+      context.getHandler(), //to access roles on methods
+      context.getClass(), //to access roles on controller
+    ]);
+    console.log(roles);
     if (!roles) {
       return true; // if i have route has no specified role so allow access
     }
